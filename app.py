@@ -17,6 +17,9 @@ Base = automap_base()
 # reflect the tables
 Base.prepare(engine, reflect=True)
 
+# Check to see table  keys to make valade reference
+Base.classes.keys()
+
 # Save reference to the table
 
 
@@ -27,3 +30,9 @@ app = Flask(__name__)
 # Flask Routes
 @app.route("/")
 def 
+
+
+
+#  Create way to run
+if __name__ == '__main__':
+    app.run(debug=True)
