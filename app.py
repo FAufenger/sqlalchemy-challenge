@@ -9,19 +9,15 @@ from sqlalchemy import create_engine, func
 from flask import Flask, jsonify
 
 # Database Setup
-engine = create_engine("sqlite:///......sqlite")
+engine = create_engine("sqlite:///......sqlite", echo = False)
 
-# reflect an existing database into a new model
+# reflect an existing database into a new model and check keys
 Base = automap_base()
-
-# reflect the tables
 Base.prepare(engine, reflect=True)
-
-# Check to see table  keys to make valade reference
-Base.classes.keys()
+#Base.classes.keys()
 
 # Save reference to the table
-
+Table_nameee = Base.classes.table_nameee
 
 # Flask Setup
 app = Flask(__name__)
@@ -77,8 +73,10 @@ def tobs():
 
 
 # Temperature of certain dates
-@app.route({/api/v1.0/<start>} and /api/v1.0/<start>/<end>)
-def 
+@app.route("/api/v1.0/<start>")
+@app.route("/api/v1.0/<start>/<end>")
+def temp_range(start, end):
+
 
 # Return a JSON list of the minimum temperature, the average temperature, and \
 #       the max temperature for a given start or start-end range.
