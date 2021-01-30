@@ -75,7 +75,8 @@ def tobs():
 # Temperature of certain dates
 @app.route("/api/v1.0/<start>")
 @app.route("/api/v1.0/<start>/<end>")
-def temp_range(start, end):
+
+def temp_range(start, end = None):
 
 
 # Return a JSON list of the minimum temperature, the average temperature, and \
