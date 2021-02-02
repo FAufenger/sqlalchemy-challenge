@@ -9,7 +9,7 @@ from sqlalchemy import create_engine, func
 from flask import Flask, jsonify
 
 # Database Setup
-engine = create_engine("sqlite:///......sqlite", echo = False)
+engine = create_engine("sqlite:///Resources/hawaii.sqlite", echo = False)
 
 # reflect an existing database into a new model and check keys
 Base = automap_base()
@@ -17,7 +17,8 @@ Base.prepare(engine, reflect=True)
 #Base.classes.keys()
 
 # Save reference to the table
-Table_nameee = Base.classes.table_nameee
+Measurement = Base.classes.measurement
+Station = Base.classes.station
 
 # Flask Setup
 app = Flask(__name__)
@@ -28,37 +29,60 @@ app = Flask(__name__)
 @app.route("/")
 def home_page():
     """List all routes that are available."""
-    return(f"Avaliable Routes:<br/>"
-            f"/api/v1.0/precipitation<br/>"
-            f"/api/v1.0/stations<br/>"
-            f"/api/v1.0/tobs<br/>"
-            f"............."
-    )
+    return"""
+        <html>
+            <h1>Hawaii Climate App (Flask API)</h1>
+                    
+            <p>Precipitation: JSON representation of dictionary</p>
+                <ul>
+                    <li><a href="/api/v1.0/precipitation">/api/v1.0/precipitation</a></li>
+                </ul>
+            <p>Stations: JSON list of stations from the dataset.</p>
+                <ul>
+                    <li><a href="/api/v1.0/stations">/api/v1.0/stations</a></li>
+                </ul>
+            <p>Temperature: Analysis of last recorded year</p>
+                <ul>
+                    <li><a href="/api/v1.0/tobs">/api/v1.0/tobs</a></li>
+                </ul>
+        </html> 
+        """
+# <img src="https://i.ytimg.com/vi/3ZiMvhIO-d4/maxresdefault.jpg" alt="Hawaii Weather"/>
 
-# # Json representation of dictionary
-# @app.route("/api/v1.0/precipitation")
-# def precipitation():
-#     # Create our session (link) from Python to the DB
-#     session = Session(engine)
+# Json representation of dictionary
+@app.route("/api/v1.0/precipitation")
+def precipitation():
+    session = Session(engine)
+    sel = [Measurement.date, Measurement.prcp]
+
+    # Query all 
+    prcp_result  = session.query(*sel).all()
+    session.close()
+
+    # Create a dictionary from the row data and append to a list of prcp
+    prcp_list = []
+    for date, prcp in prcp_result:
+        prcp_dict = {}
+        prcp_dict["date"] = date
+        prcp_dict["prcp"] = prcp
+        prcp_list.append(prcp_dict)
+
+    return jsonify(prcp_list)
+
+
+# Station list
+@app.route("/api/v1.0/stations")
+def stations():
+    session = Session(engine)
+    sel =  [Station.station]
+    stations_list = session.query(*sel).all()
+    session.close()
+
+    # Convert list of tuples into normal list
+    station_data = list(np.ravel(stations_list))
     
-#     # Query all 
-#     results = session.query().all()
-
-#     session.close()
-#     return jsonify()
-
-# #Convert the query results to a dictionary using date as the key and prcp as the value.
-# #Return the JSON representation of your dictionary.
-
-
-
-# # Station list
-# @app.route("/api/v1.0/stations")
-# def stations():
-
-#     # Return a JSON list of stations from the dataset.
-#     session.close()
-#     return()
+    # Return a JSON list of stations from the dataset.
+    return jsonify(station_data)
 
 
 # # Temperature observations
@@ -66,9 +90,10 @@ def home_page():
 # def tobs():
 
 
-# #Query the dates and temperature observations of the most active station for 
-# #       the last year of data.
-# #Return a JSON list of temperature observations (TOBS) for the previous year.
+#Query the dates and temperature observations of the most active station for 
+#    the last year of data.
+
+#Return a JSON list of temperature observations (TOBS) for the previous year.
 
 
 
