@@ -23,9 +23,17 @@ Sorting the station with the most results and ploting temp observed
 Looking back one year and finding results to estimate weather for upcomming trip <br>
 with error possibility included
 
-### The extra mile 
+<br/>
 
-further data exploration
+### The extra mile : further data exploration 
+
+<br/>
+
+### Plotting the min, avg, and max temperature from a previous query as a bar chart.
 
 ![trip average temp](./images/trip_avg_temp.png)
 
+
+### Area plot for the daily normals of days for a planned vacation
+
+![Area plot for prior vacation day temps](./images/norm_temp_plot.png)
