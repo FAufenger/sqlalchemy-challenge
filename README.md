@@ -27,5 +27,8 @@ with error possibility included
 
 further data exploration
 
+
 ![trip average temp](./images/trip_avg_temp.png)
 
+
+![Area plot for prior vacation day temps](./images/norm_temp_plot.png)
