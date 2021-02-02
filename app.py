@@ -74,7 +74,7 @@ def home_page():
             <p>JSON list of the min temp, avg temp, and the max <br>
                 temp for a given start or start-end range.</p>
                 <ul>
-                    <li><a href="/api/v1.0/<start>/<end>">/api/v1.0/<start>/<end></a></li>
+                    <li><a href="/api/v1.0/date_search">/api/v1.0/date_search</a></li>
                 </ul>
         </html> 
         """
@@ -146,23 +146,85 @@ def tobs():
     return jsonify(tobs_list)
 
 
-# # Temperature of certain dates
-# @app.route("/api/v1.0/<start>")
-# @app.route("/api/v1.0/<start>/<end>")
+@app.route("/api/v1.0/date_search")
+def page_within_page():
+    session = Session(engine)
 
-# def temp_range(start, end = None):
+    sel = [Measurement.date]
+    last_date_str = session.query(*sel).order_by(Measurement.date.desc()).first()
+    last_date = dt.datetime.strptime(last_date_str[0], '%Y-%m-%d')
+    session.close()
+
+    return(
+        f"Hello!!"
+        f"<br/>"
+        f"<br/>"
+        f"<br/>"
+        f"Please delete (date_search) from the http above and type in start date<br/> "
+        f"type a YYYY-MM-DD to begin<br/>"
+        f"<br/>"
+        f"<br/>"
+        f"<br/>"
+        f"The most recent update to this file is {last_date}"
+        f"<br/>"
+        f"end is optional but must add a forward slash between start/end can also be explained as<br/>" 
+        f"YYYY-MM-DD/YYYY-MM-DD with start alwasy coming frist and if second variable <br/>"
+        f"(end) is left empty Will default to last recorded observation<br/>"
+        f"<br/>"
+        f"<br/>"
+        f"<br/>"
+        f"<br/>"
+        f"TMIN, TAVG, and TMAX presented in Json for a list of chosen dates.<br/>"
+    )
+
+# Temperature of certain dates (Combinng two possible queries from one def())
+@app.route("/api/v1.0/<start>")
+@app.route("/api/v1.0/<start>/<end>")
+
+# Return a JSON list of the minimum temperature, the average temperature, and \
+#       the max temperature for a given start or start-end range.
+def temp_range(start, end = None):
+    session = Session(engine)
+
+    # Query Data to find last date recorded and track back one year
+    sel = [Measurement.date]
+    last_date_str = session.query(*sel).order_by(Measurement.date.desc()).first()
+    last_date = dt.datetime.strptime(last_date_str[0], '%Y-%m-%d')
+    start_date = start
+    end_date = end
+
+    ## Attempt to make input easier into hyperlink....
+    # Find desired start and end search date
+    # start_date = input("YYYY-MM-DD")
+    # end_date = input("YYYY-MM-DD")
+    # print(f'Which date would you like to end:')
+    # print(f'{start_date}')
+    # print(f'Which date would you like to end:')
+    # print(f'If left blank will default to most recent observation {last_date}')
+    # print(f'{end_date}')
+
+# When given the start only, calculate TMIN, TAVG, and 
+#       TMAX for all dates greater than and equal to the start date.
+    if end != "":
+        sel = func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)
+        temp_stats = session.query(*sel).\
+            filter(Measurement.date.between(start_date, last_date)).all()
+        
+        t_stats = list(np.ravel(temp_stats))
+        return jsonify(temp_stats)
+
+# When given the start and the end date, calculate the TMIN, TAVG, and TMAX 
+#       for dates between the start and end date inclusive.
+    else:
+        sel = func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)
+        temp_stats = session.query(*sel).\
+            filter(start_date > end_date).all()
+       
+        t_stats = list(np.ravel(temp_stats))
+        return jsonify(temp_stats)
 
 
-# # Return a JSON list of the minimum temperature, the average temperature, and \
-# #       the max temperature for a given start or start-end range.
-# # When given the start only, calculate TMIN, TAVG, and 
-# #       TMAX for all dates greater than and equal to the start date.
-# # When given the start and the end date, calculate the TMIN, TAVG, and TMAX 
-# #       for dates between the start and end date inclusive.
-
-
-
-
+    session.close()
 
 #  Create way to run
 if __name__ == '__main__':
