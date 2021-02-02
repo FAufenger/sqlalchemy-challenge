@@ -30,24 +30,53 @@ app = Flask(__name__)
 def home_page():
     """List all routes that are available."""
     return"""
-        <html>
+        <html lang="en-us">
+        <head>
+            <meta charset="UTF-8">
+
+        <style> 
+            h1 {
+                font-size: 35px;
+                color: "white";
+                background-color: "blue";
+            }
+            
+            h2 {
+                font-size: 20px;
+                font-weight: bold;
+            }
+            
+            </style>
+            </head>
+
             <h1>Hawaii Climate App (Flask API)</h1>
-                    
-            <p>Precipitation: JSON representation of dictionary</p>
+
+            <h2>Precipitation:</h2>
+            <p>JSON representation of dictionary (date: prcp)</p>
                 <ul>
                     <li><a href="/api/v1.0/precipitation">/api/v1.0/precipitation</a></li>
                 </ul>
-            <p>Stations: JSON list of stations from the dataset.</p>
+            <h2>Stations:</h2>
+            <p>JSON list of stations from the dataset</p>
                 <ul>
                     <li><a href="/api/v1.0/stations">/api/v1.0/stations</a></li>
                 </ul>
-            <p>Temperature: Analysis of last recorded year</p>
+
+            <h2>Temperature:</h2>
+            <p>A JSON list of temperature observations (TOBS)<br> 
+                    for the last year recorded from the most active station</p>
                 <ul>
                     <li><a href="/api/v1.0/tobs">/api/v1.0/tobs</a></li>
                 </ul>
+        
+            <h2>Range of Temperature:</h2>
+            <p>JSON list of the min temp, avg temp, and the max <br>
+                temp for a given start or start-end range.</p>
+                <ul>
+                    <li><a href="/api/v1.0/<start>/<end>">/api/v1.0/<start>/<end></a></li>
+                </ul>
         </html> 
         """
-# <img src="https://i.ytimg.com/vi/3ZiMvhIO-d4/maxresdefault.jpg" alt="Hawaii Weather"/>
 
 # Json representation of dictionary
 @app.route("/api/v1.0/precipitation")
@@ -85,9 +114,9 @@ def stations():
     return jsonify(station_data)
 
 
-# # Temperature observations
-# @app.route("/api/v1.0/tobs")
-# def tobs():
+# Temperature observations
+@app.route("/api/v1.0/tobs")
+def tobs():
 
 
 #Query the dates and temperature observations of the most active station for 
