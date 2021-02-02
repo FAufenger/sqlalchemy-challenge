@@ -1,5 +1,6 @@
 # Import dependencies
 import numpy as np
+import datetime as dt
 
 import sqlalchemy
 from sqlalchemy.ext.automap import automap_base
@@ -117,13 +118,32 @@ def stations():
 # Temperature observations
 @app.route("/api/v1.0/tobs")
 def tobs():
+    session = Session(engine)
+    # Query Data to find last date recorded and track back one year
+    sel = [Measurement.date]
+    last_date_str = session.query(*sel).order_by(Measurement.date.desc()).first()
+    last_date = dt.datetime.strptime(last_date_str[0], '%Y-%m-%d')
+    year_ago = last_date - dt.timedelta(365)
 
+    # Query Data to get station with most observations
+    sel = [Measurement.station, func.count(Measurement.id)]
+    active_stations = session.query(*sel).\
+        group_by(Measurement.station).\
+        order_by(func.count(Measurement.id).desc()).all()
+    most_active_station = active_stations[0][0]
+    
+    # Use obtained dates and station to get results
+    sel = Measurement.date, Measurement.tobs
+    tobs_data = session.query(*sel).\
+                filter(Measurement.date >= year_ago).\
+                filter(Measurement.date <= last_date).\
+                filter(Measurement.station == most_active_station).\
+                order_by(Measurement.date).all()
+    session.close()
 
-#Query the dates and temperature observations of the most active station for 
-#    the last year of data.
-
-#Return a JSON list of temperature observations (TOBS) for the previous year.
-
+    # Return a JSON list of temperature observations (TOBS) for the previous year.
+    tobs_list = list(np.ravel(tobs_data))
+    return jsonify(tobs_list)
 
 
 # # Temperature of certain dates
