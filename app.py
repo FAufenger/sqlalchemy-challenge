@@ -72,7 +72,7 @@ def home_page():
         
             <h2>Range of Temperature:</h2>
             <p>JSON list of the min temp, avg temp, and the max <br>
-                temp for a given start or start-end range.</p>
+                temp for a given start or start-end range over all stations.</p>
                 <ul>
                     <li><a href="/api/v1.0/date_search">/api/v1.0/date_search</a></li>
                 </ul>
@@ -151,8 +151,12 @@ def page_within_page():
     session = Session(engine)
 
     sel = [Measurement.date]
-    last_date_str = session.query(*sel).order_by(Measurement.date.desc()).first()
-    last_date = dt.datetime.strptime(last_date_str[0], '%Y-%m-%d')
+    recent_date_str = session.query(*sel).order_by(Measurement.date.desc()).first()
+    recent_date = dt.datetime.strptime(recent_date_str[0], '%Y-%m-%d')
+    
+    oldest_record_str = session.query(*sel).order_by(Measurement.date.asc()).first()
+    oldest_record = dt.datetime.strptime(oldest_record_str[0], '%Y-%m-%d')
+    
     session.close()
 
     return(
@@ -160,21 +164,28 @@ def page_within_page():
         f"<br/>"
         f"<br/>"
         f"<br/>"
+        f"The most recent date stored to this file is {recent_date}<br/>"
+        f"While the oldest date on record is {oldest_record}<br/>"
+        f"<br/>"
+        f"<br/>"
         f"Please delete (date_search) from the http above and type in start date<br/> "
         f"type a YYYY-MM-DD to begin<br/>"
         f"<br/>"
+        f"This starts a search from the chosen date to the most recent observation recorded<br/>"
         f"<br/>"
         f"<br/>"
-        f"The most recent update to this file is {last_date}"
-        f"<br/>"
-        f"end is optional but must add a forward slash between start/end can also be explained as<br/>" 
+        f"You also have the option to choose an end date to enclose the search range<br/>"
+        f"You must add a forward slash between start/end can also be explained as<br/>" 
         f"YYYY-MM-DD/YYYY-MM-DD with start alwasy coming frist and if second variable <br/>"
-        f"(end) is left empty Will default to last recorded observation<br/>"
+        f"(end) is left empty or typed in incorrectly or not registering<br/>"
+        f"end will default to last recorded observation<br/>"
         f"<br/>"
         f"<br/>"
         f"<br/>"
-        f"<br/>"
-        f"TMIN, TAVG, and TMAX presented in Json for a list of chosen dates.<br/>"
+        f"Presented in Json for a list of chosen dates.<br/>"
+        f"TMIN<br/>"
+        f"TAVG<br/>"
+        f"TMAX<br/>"
     )
 
 # Temperature of certain dates (Combinng two possible queries from one def())
@@ -205,23 +216,23 @@ def temp_range(start, end = None):
 
 # When given the start only, calculate TMIN, TAVG, and 
 #       TMAX for all dates greater than and equal to the start date.
-    if end != "":
+    if end == None:
         sel = func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)
         temp_stats = session.query(*sel).\
             filter(Measurement.date.between(start_date, last_date)).all()
         
-        t_stats = list(np.ravel(temp_stats))
-        return jsonify(temp_stats)
+        temp_stats_list = list(np.ravel(temp_stats))
+        return jsonify(temp_stats_list)
 
 # When given the start and the end date, calculate the TMIN, TAVG, and TMAX 
 #       for dates between the start and end date inclusive.
     else:
         sel = func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)
         temp_stats = session.query(*sel).\
-            filter(start_date > end_date).all()
+            filter(start_date < end_date).all()
        
-        t_stats = list(np.ravel(temp_stats))
-        return jsonify(temp_stats)
+        temp_stats_list = list(np.ravel(temp_stats))
+        return jsonify(temp_stats_list)
 
 
     session.close()
