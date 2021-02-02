@@ -18,9 +18,14 @@ Sorting the station with the most results and ploting temp observed
 ![hist_temp](./images/hist_temp.png)
 
 ### Create a Flask based API based on researched data
-
+![Flask API preview](./images/climate_flask_app.png)
 
 Looking back one year and finding results to estimate weather for upcomming trip <br>
 with error possibility included
 
+### The extra mile 
+
+further data exploration
+
 ![trip average temp](./images/trip_avg_temp.png)
+
